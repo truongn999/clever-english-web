@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,7 +62,18 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				// Custom colors for our English learning app
+				"english-blue": "#1a73e8",
+				"english-green": "#34a853",
+				"english-red": "#ea4335",
+				"english-yellow": "#fbbc05",
+				"english-light": "#f8f9fa",
+				"english-dark": "#202124",
+			},
+			fontFamily: {
+				serif: ['Georgia', 'Times New Roman', 'serif'],
+				sans: ['Inter', 'Roboto', 'sans-serif'],
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -84,11 +96,17 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'flash': {
+					'0%, 100%': { transform: 'rotate(0deg)' },
+					'25%': { transform: 'rotate(3deg)' },
+					'75%': { transform: 'rotate(-3deg)' },
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'flash': 'flash 0.5s ease-in-out',
 			}
 		}
 	},
