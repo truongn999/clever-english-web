@@ -1,14 +1,31 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuLabel, 
+  DropdownMenuSeparator, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, isLoggedIn, logout } = useAuth();
+  const navigate = useNavigate();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
   };
 
   return (
@@ -27,7 +44,50 @@ const Navbar: React.FC = () => {
             <Link to="/lessons" className="text-gray-700 hover:text-english-blue font-medium">Lessons</Link>
             <Link to="/vocabulary" className="text-gray-700 hover:text-english-blue font-medium">Vocabulary</Link>
             <Link to="/quiz" className="text-gray-700 hover:text-english-blue font-medium">Quiz</Link>
-            <Button className="bg-english-blue hover:bg-english-blue/90">Sign In</Button>
+            {
+              isLoggedIn && (
+                <Link to="/leaderboard" className="text-gray-700 hover:text-english-blue font-medium">Leaderboard</Link>
+              )
+            }
+            {isLoggedIn ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-10 w-10 rounded-full border-1 border-english-blue hover:bg-blue-50 transition-all duration-200 p-0">
+                    <Avatar className="h-full w-full">
+                      <AvatarImage src={user?.avatar} alt={user?.name || 'User'} />
+                      <AvatarFallback className="bg-english-blue text-white font-medium">{user?.name?.charAt(0) || 'U'}</AvatarFallback>
+                    </Avatar>
+                    <span className="absolute -bottom-1 -right-1 h-3.5 w-3.5 rounded-full bg-green-500 border-2 border-white"></span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>
+                    <div className="flex flex-col">
+                      <span>{user?.name || 'User'}</span>
+                      <span className="text-xs text-gray-500">{user?.email}</span>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate('/dashboard')}>
+                    Dashboard
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/profile')}>
+                    Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/settings')}>
+                    Settings
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout}>
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button className="bg-english-blue hover:bg-english-blue/90">
+                <Link to="/login">Sign In</Link>
+              </Button>
+            )}
           </div>
           
           {/* Mobile menu button */}
@@ -41,6 +101,7 @@ const Navbar: React.FC = () => {
           </div>
         </div>
       </div>
+      
       
       {/* Mobile menu */}
       {isMenuOpen && (
@@ -70,9 +131,47 @@ const Navbar: React.FC = () => {
             >
               Quiz
             </Link>
-            <div className="pt-2">
-              <Button className="w-full bg-english-blue hover:bg-english-blue/90">Sign In</Button>
-            </div>
+            <Link to="/leaderboard" 
+              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-english-blue hover:bg-gray-50"
+              onClick={toggleMenu}
+            >
+              Leaderboard
+            </Link>
+            {isLoggedIn ? (
+              <div className="md:flex items-center ml-4">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button>Profile</Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => navigate('/dashboard')}>
+                      Dashboard
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/profile')}>
+                      Profile
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/settings')}>
+                      Settings
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleLogout}>
+                      Logout
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-4 ml-4">
+                <Button>
+                  <Link to="/login">Sign In</Link>
+                </Button>
+                <Button asChild>
+                  <Link to="/register">Sign Up</Link>
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       )}

@@ -63,16 +63,16 @@ const Index: React.FC = () => {
                 <Button className="bg-white text-english-blue hover:bg-gray-100 text-lg" size="lg" asChild>
                   <Link to="/lessons">Start Learning</Link>
                 </Button>
-                <Button variant="outline" className="text-white border-white hover:bg-white/10 text-lg" size="lg" asChild>
-                  <Link to="/quiz">Try a Quiz</Link>
+                <Button variant="outline" className="text-english-blue border-white hover:bg-white/10 text-lg" size="lg" asChild>
+                  <Link to="/vocabulary">Try a Flash card</Link>
                 </Button>
               </div>
             </div>
             <div className="md:w-1/2 mt-10 md:mt-0">
               <img
-                src="/placeholder.svg"
-                alt="Students learning English"
-                className="rounded-lg shadow-xl"
+                src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
+                alt="Students learning English together"
+                className="rounded-lg shadow-xl object-cover h-full w-full"
               />
             </div>
           </div>
