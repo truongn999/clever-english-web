@@ -10,6 +10,7 @@ interface VocabularyWord {
   meaning: string;
   example: string;
   pronunciation?: string;
+  pronunciationUK?: string;
   category?: string;
   imageUrl?: string;
 }
@@ -51,6 +52,7 @@ const VocabularyFlashcardView: React.FC<VocabularyFlashcardViewProps> = ({
         meaning={currentWord.meaning}
         example={currentWord.example}
         pronunciation={currentWord.pronunciation}
+        pronunciationUK={currentWord.pronunciationUK}
         imageUrl={currentWord.imageUrl}
         isSaved={isSaved}
         onSave={() => onToggleSave(currentWord.id)}

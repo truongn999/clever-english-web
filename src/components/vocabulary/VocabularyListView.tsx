@@ -8,6 +8,7 @@ interface VocabularyWord {
   meaning: string;
   example: string;
   pronunciation?: string;
+  pronunciationUK?: string;
   category?: string;
 }
 
@@ -36,6 +37,7 @@ const VocabularyListView: React.FC<VocabularyListViewProps> = ({
           meaning={item.meaning}
           example={item.example}
           pronunciation={item.pronunciation}
+          pronunciationUK={item.pronunciationUK}
           category={item.category}
           isSaved={savedWords.includes(item.id)}
           onToggleSave={onToggleSave}

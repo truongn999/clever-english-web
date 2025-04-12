@@ -9,6 +9,7 @@ interface VocabularyCardProps {
   meaning: string;
   example: string;
   pronunciation?: string;
+  pronunciationUK?: string;
   category?: string;
   isSaved: boolean;
   onToggleSave: (id: string) => void;
@@ -20,14 +21,15 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
   meaning,
   example,
   pronunciation,
+  pronunciationUK,
   category,
   isSaved,
   onToggleSave,
 }) => {
-  const handleSpeak = (text: string) => {
+  const handleSpeak = (text: string, lang: 'en-US' | 'en-GB' = 'en-US') => {
     if ('speechSynthesis' in window) {
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'en-US';
+      utterance.lang = lang;
       speechSynthesis.cancel(); // Cancel any ongoing speech
       window.speechSynthesis.speak(utterance);
     }
@@ -41,15 +43,6 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
             <h3 className="font-serif text-xl font-bold text-english-dark">
               {word}
             </h3>
-            <Button
-              variant="ghost" 
-              size="sm"
-              onClick={() => handleSpeak(word)}
-              className="h-8 w-8 p-0"
-              aria-label="Pronounce word"
-            >
-              <Volume2 size={16} />
-            </Button>
             {category && (
               <span className="text-xs bg-english-light text-english-dark px-2 py-0.5 rounded">
                 {category}
@@ -57,23 +50,69 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
             )}
           </div>
           
-          {pronunciation && (
-            <div className="text-gray-500 text-sm mb-2">/{pronunciation}/</div>
-          )}
+          <div className="flex flex-col sm:flex-row gap-2 mb-2">
+            {pronunciation && (
+              <div className="flex items-center gap-1">
+                <span className="text-xs font-medium text-gray-500">US</span>
+                <span className="text-gray-500 text-sm">/{pronunciation}/</span>
+                <Button
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => handleSpeak(word, 'en-US')}
+                  className="h-6 w-6 p-0"
+                  aria-label="US pronunciation"
+                >
+                  <Volume2 size={14} />
+                </Button>
+              </div>
+            )}
+            
+            {pronunciationUK && (
+              <div className="flex items-center gap-1">
+                <span className="text-xs font-medium text-gray-500">UK</span>
+                <span className="text-gray-500 text-sm">/{pronunciationUK}/</span>
+                <Button
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => handleSpeak(word, 'en-GB')}
+                  className="h-6 w-6 p-0"
+                  aria-label="UK pronunciation"
+                >
+                  <Volume2 size={14} />
+                </Button>
+              </div>
+            )}
+          </div>
           
           <p className="text-gray-700">{meaning}</p>
           
           <div className="mt-2 group relative">
             <p className="text-gray-600 italic">"{example}"</p>
-            <Button
-              variant="ghost" 
-              size="sm"
-              onClick={() => handleSpeak(example)}
-              className="opacity-0 group-hover:opacity-100 absolute -right-2 -top-1 h-6 w-6 p-0"
-              aria-label="Pronounce example"
-            >
-              <Volume2 size={14} />
-            </Button>
+            <div className="opacity-0 group-hover:opacity-100 absolute -right-2 -top-1 flex gap-1">
+              {pronunciation && (
+                <Button
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => handleSpeak(example, 'en-US')}
+                  className="h-6 w-6 p-0"
+                  aria-label="US pronunciation"
+                >
+                  <Volume2 size={14} />
+                </Button>
+              )}
+              
+              {pronunciationUK && (
+                <Button
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => handleSpeak(example, 'en-GB')}
+                  className="h-6 w-6 p-0"
+                  aria-label="UK pronunciation"
+                >
+                  <Volume2 size={14} />
+                </Button>
+              )}
+            </div>
           </div>
         </div>
         

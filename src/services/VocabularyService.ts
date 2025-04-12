@@ -7,6 +7,7 @@ export interface VocabularyWord {
   meaning: string;
   example: string;
   pronunciation?: string;
+  pronunciationUK?: string;
   category: string;
   imageUrl?: string;
 }
@@ -19,7 +20,9 @@ const vocabularyMockData: VocabularyWord[] = [
     meaning: "Present, appearing, or found everywhere.",
     example: "Mobile phones are now ubiquitous in modern society.",
     pronunciation: "yoo-BIK-wi-tuhs",
+    pronunciationUK: "yoo-BIK-wi-tuhs",
     category: "Advanced",
+    imageUrl: "https://images.unsplash.com/photo-1528116356155-a26f0c2ecb7f?q=80&w=300&auto=format&fit=crop",
   },
   {
     id: "2",
@@ -27,7 +30,9 @@ const vocabularyMockData: VocabularyWord[] = [
     meaning: "Lasting for a very short time.",
     example: "The beauty of cherry blossoms is ephemeral, lasting only a few days.",
     pronunciation: "ih-FEM-er-uhl",
+    pronunciationUK: "ih-FEM-uh-ruhl",
     category: "Advanced",
+    imageUrl: "https://images.unsplash.com/photo-1552248524-10d9a7e4841c?q=80&w=300&auto=format&fit=crop",
   },
   {
     id: "3",
@@ -35,7 +40,9 @@ const vocabularyMockData: VocabularyWord[] = [
     meaning: "Able to recover quickly from difficulties; tough.",
     example: "She's a resilient person who bounces back from setbacks.",
     pronunciation: "ri-ZIL-yuhnt",
+    pronunciationUK: "ri-ZIL-i-uhnt",
     category: "Intermediate",
+    imageUrl: "https://images.unsplash.com/photo-1546500840-ae38253aba9b?q=80&w=300&auto=format&fit=crop",
   },
   {
     id: "4",
@@ -43,6 +50,7 @@ const vocabularyMockData: VocabularyWord[] = [
     meaning: "Work jointly on an activity or project.",
     example: "Our teams will collaborate on the new product launch.",
     pronunciation: "kuh-LAB-uh-reyt",
+    pronunciationUK: "kuh-LAB-uh-reyt",
     category: "Intermediate",
   },
   {
@@ -51,6 +59,7 @@ const vocabularyMockData: VocabularyWord[] = [
     meaning: "Expressing oneself clearly and effectively.",
     example: "She gave an articulate presentation that impressed everyone.",
     pronunciation: "ahr-TIK-yuh-lit",
+    pronunciationUK: "ah-TIK-yuh-lit",
     category: "Intermediate",
   },
   {
@@ -59,6 +68,7 @@ const vocabularyMockData: VocabularyWord[] = [
     meaning: "Delay or postpone action; put off doing something.",
     example: "I tend to procrastinate when it comes to difficult tasks.",
     pronunciation: "proh-KRAS-tuh-neyt",
+    pronunciationUK: "pruh-KRAS-ti-neyt",
     category: "Intermediate",
   },
   {
@@ -67,6 +77,7 @@ const vocabularyMockData: VocabularyWord[] = [
     meaning: "Of considerable importance, size, or value.",
     example: "He made a substantial contribution to the project.",
     pronunciation: "suhb-STAN-shuhl",
+    pronunciationUK: "suhb-STAN-shuhl",
     category: "Intermediate",
   },
   {
@@ -75,7 +86,9 @@ const vocabularyMockData: VocabularyWord[] = [
     meaning: "Open to more than one interpretation; not clear or definite.",
     example: "The instructions were ambiguous and left me confused.",
     pronunciation: "am-BIG-yoo-uhs",
+    pronunciationUK: "am-BIG-yoo-uhs",
     category: "Advanced",
+    imageUrl: "https://images.unsplash.com/photo-1552346117-39b62b1d20c8?q=80&w=300&auto=format&fit=crop",
   },
 ];
 
