@@ -320,7 +320,10 @@ const Vocabulary: React.FC = () => {
                     <Button 
                       variant="outline" 
                       className="mt-4"
-                      onClick={() => document.querySelector('[data-value="all"]')?.click()}
+                      onClick={() => {
+                        const tabElement = document.querySelector('[data-value="all"]') as HTMLElement;
+                        if (tabElement) tabElement.click();
+                      }}
                     >
                       Explore Vocabulary
                     </Button>
