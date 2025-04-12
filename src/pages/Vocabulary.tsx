@@ -1,102 +1,62 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import FlashCard from '@/components/FlashCard';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Search, ChevronLeft, ChevronRight, Bookmark, List } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
-// Mock vocabulary data
-const vocabularyMockData = [
-  {
-    id: "1",
-    word: "Ubiquitous",
-    meaning: "Present, appearing, or found everywhere.",
-    example: "Mobile phones are now ubiquitous in modern society.",
-    pronunciation: "yoo-BIK-wi-tuhs",
-    category: "Advanced",
-  },
-  {
-    id: "2",
-    word: "Ephemeral",
-    meaning: "Lasting for a very short time.",
-    example: "The beauty of cherry blossoms is ephemeral, lasting only a few days.",
-    pronunciation: "ih-FEM-er-uhl",
-    category: "Advanced",
-  },
-  {
-    id: "3",
-    word: "Resilient",
-    meaning: "Able to recover quickly from difficulties; tough.",
-    example: "She's a resilient person who bounces back from setbacks.",
-    pronunciation: "ri-ZIL-yuhnt",
-    category: "Intermediate",
-  },
-  {
-    id: "4",
-    word: "Collaborate",
-    meaning: "Work jointly on an activity or project.",
-    example: "Our teams will collaborate on the new product launch.",
-    pronunciation: "kuh-LAB-uh-reyt",
-    category: "Intermediate",
-  },
-  {
-    id: "5",
-    word: "Articulate",
-    meaning: "Expressing oneself clearly and effectively.",
-    example: "She gave an articulate presentation that impressed everyone.",
-    pronunciation: "ahr-TIK-yuh-lit",
-    category: "Intermediate",
-  },
-  {
-    id: "6",
-    word: "Procrastinate",
-    meaning: "Delay or postpone action; put off doing something.",
-    example: "I tend to procrastinate when it comes to difficult tasks.",
-    pronunciation: "proh-KRAS-tuh-neyt",
-    category: "Intermediate",
-  },
-  {
-    id: "7",
-    word: "Substantial",
-    meaning: "Of considerable importance, size, or value.",
-    example: "He made a substantial contribution to the project.",
-    pronunciation: "suhb-STAN-shuhl",
-    category: "Intermediate",
-  },
-  {
-    id: "8",
-    word: "Ambiguous",
-    meaning: "Open to more than one interpretation; not clear or definite.",
-    example: "The instructions were ambiguous and left me confused.",
-    pronunciation: "am-BIG-yoo-uhs",
-    category: "Advanced",
-  },
-];
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
+import { useVocabulary, getCategories, VocabularyWord } from '@/services/VocabularyService';
+import VocabularyControls from '@/components/vocabulary/VocabularyControls';
+import VocabularyFlashcardView from '@/components/vocabulary/VocabularyFlashcardView';
+import VocabularyListView from '@/components/vocabulary/VocabularyListView';
+import EmptyState from '@/components/vocabulary/EmptyState';
+import VocabularyTips from '@/components/vocabulary/VocabularyTips';
+import { Loader2 } from 'lucide-react';
 
 const Vocabulary: React.FC = () => {
-  const [currentCardIndex, setCurrentCardIndex] = useState(0);
-  const [searchTerm, setSearchTerm] = useState('');
+  // Get vocabulary data
+  const { data: vocabulary = [], isLoading, error } = useVocabulary();
+  
+  // State
+  const [searchTerm, setSearchTerm] = useState<string>('');
   const [filterCategory, setFilterCategory] = useState<string>('');
-  const [savedWords, setSavedWords] = useState<string[]>([]);
+  const [savedWords, setSavedWords] = useState<string[]>(() => {
+    // Load saved words from localStorage
+    const saved = localStorage.getItem('savedVocabulary');
+    return saved ? JSON.parse(saved) : [];
+  });
   const [viewMode, setViewMode] = useState<'flashcard' | 'list'>('flashcard');
+  const [currentCardIndex, setCurrentCardIndex] = useState<number>(0);
+  const [activeTab, setActiveTab] = useState<string>('all');
+  
+  const { toast } = useToast();
+  const categories = getCategories();
 
-  // Filter vocabulary based on search and category
-  const filteredVocabulary = vocabularyMockData.filter((item) => {
-    const matchesSearch = item.word.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          item.meaning.toLowerCase().includes(searchTerm.toLowerCase());
+  // Save to localStorage when savedWords changes
+  useEffect(() => {
+    localStorage.setItem('savedVocabulary', JSON.stringify(savedWords));
+  }, [savedWords]);
+
+  // Reset current card index when filtered vocabulary changes
+  useEffect(() => {
+    setCurrentCardIndex(0);
+  }, [searchTerm, filterCategory, activeTab]);
+
+  // Filter vocabulary based on search, category, and tab
+  const filteredVocabulary = vocabulary.filter((item: VocabularyWord) => {
+    const matchesSearch = 
+      item.word.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      item.meaning.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = filterCategory ? item.category === filterCategory : true;
+    
+    if (activeTab === 'saved') {
+      return savedWords.includes(item.id) && matchesSearch && matchesCategory;
+    }
     
     return matchesSearch && matchesCategory;
   });
 
-  // For saved words tab
-  const savedVocabulary = vocabularyMockData.filter(item => 
-    savedWords.includes(item.id)
-  );
-
+  // Navigation functions
   const handlePrevCard = () => {
     setCurrentCardIndex((prevIndex) => 
       prevIndex > 0 ? prevIndex - 1 : filteredVocabulary.length - 1
@@ -109,16 +69,41 @@ const Vocabulary: React.FC = () => {
     );
   };
 
+  // Toggle save word
   const toggleSaveWord = (id: string) => {
-    setSavedWords(prev => 
-      prev.includes(id) 
-        ? prev.filter(wordId => wordId !== id) 
-        : [...prev, id]
-    );
+    setSavedWords(prev => {
+      if (prev.includes(id)) {
+        toast({
+          title: "Word removed from saved list",
+          duration: 2000,
+        });
+        return prev.filter(wordId => wordId !== id);
+      } else {
+        toast({
+          title: "Word saved to your list",
+          duration: 2000,
+        });
+        return [...prev, id];
+      }
+    });
   };
 
-  // Categories for filtering
-  const categories = Array.from(new Set(vocabularyMockData.map(item => item.category)));
+  // Handle tab change
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+  };
+
+  // Reset filters
+  const handleResetFilters = () => {
+    setSearchTerm('');
+    setFilterCategory('');
+  };
+
+  // Switch to all tab
+  const handleSwitchToAllTab = () => {
+    const tabElement = document.querySelector('[data-value="all"]') as HTMLElement;
+    if (tabElement) tabElement.click();
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -126,234 +111,136 @@ const Vocabulary: React.FC = () => {
       
       <main className="flex-grow">
         {/* Header */}
-        <section className="bg-english-blue text-white py-12 px-4">
+        <section className="bg-english-blue text-white py-8 sm:py-12 px-4">
           <div className="max-w-7xl mx-auto">
-            <h1 className="text-3xl md:text-4xl font-serif font-bold mb-4">Vocabulary Builder</h1>
-            <p className="text-xl opacity-90">Enhance your English vocabulary with interactive flashcards</p>
+            <h1 className="text-3xl md:text-4xl font-serif font-bold mb-3">Vocabulary Builder</h1>
+            <p className="text-lg md:text-xl opacity-90">
+              Enhance your English vocabulary with interactive flashcards
+            </p>
           </div>
         </section>
         
-        {/* Tabs */}
-        <div className="bg-white pt-4">
+        {/* Vocabulary content */}
+        <div className="bg-white pt-4 pb-8">
           <div className="max-w-7xl mx-auto px-4">
-            <Tabs defaultValue="all" className="w-full">
-              <TabsList className="grid w-full max-w-md mx-auto grid-cols-2">
-                <TabsTrigger value="all">All Words</TabsTrigger>
-                <TabsTrigger value="saved">Saved Words ({savedWords.length})</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="all" className="pt-6">
-                {/* Search and Filter */}
-                <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                  <div className="relative flex-grow">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-                    <Input 
-                      placeholder="Search vocabulary..." 
-                      className="pl-10"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                  </div>
-                  
-                  <div className="flex gap-4">
-                    <select 
-                      className="px-4 py-2 border rounded-md bg-white text-gray-800"
-                      value={filterCategory}
-                      onChange={(e) => setFilterCategory(e.target.value)}
-                    >
-                      <option value="">All Levels</option>
-                      {categories.map(category => (
-                        <option key={category} value={category}>{category}</option>
-                      ))}
-                    </select>
-                    
-                    <div className="flex border rounded overflow-hidden">
-                      <Button 
-                        variant={viewMode === 'flashcard' ? 'default' : 'ghost'}
-                        size="sm"
-                        className="rounded-none"
-                        onClick={() => setViewMode('flashcard')}
-                      >
-                        <Bookmark size={18} />
-                      </Button>
-                      <Button 
-                        variant={viewMode === 'list' ? 'default' : 'ghost'}
-                        size="sm"
-                        className="rounded-none"
-                        onClick={() => setViewMode('list')}
-                      >
-                        <List size={18} />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
+            {isLoading ? (
+              <div className="flex justify-center items-center py-20">
+                <Loader2 className="h-8 w-8 animate-spin text-english-blue" />
+                <span className="ml-2 text-english-dark">Loading vocabulary...</span>
+              </div>
+            ) : error ? (
+              <div className="text-center py-20 text-red-500">
+                <p>Error loading vocabulary. Please try again later.</p>
+                <Button 
+                  variant="outline" 
+                  className="mt-4"
+                  onClick={() => window.location.reload()}
+                >
+                  Refresh Page
+                </Button>
+              </div>
+            ) : (
+              <Tabs 
+                defaultValue="all" 
+                className="w-full"
+                value={activeTab}
+                onValueChange={handleTabChange}
+              >
+                <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-4">
+                  <TabsTrigger value="all" data-value="all">All Words</TabsTrigger>
+                  <TabsTrigger value="saved" data-value="saved">
+                    Saved Words ({savedWords.length})
+                  </TabsTrigger>
+                </TabsList>
                 
-                {filteredVocabulary.length > 0 ? (
-                  <>
-                    {viewMode === 'flashcard' ? (
-                      <div className="mb-12">
-                        <div className="flex justify-between items-center mb-6">
-                          <div className="text-sm text-gray-500">
-                            Card {currentCardIndex + 1} of {filteredVocabulary.length}
-                          </div>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => toggleSaveWord(filteredVocabulary[currentCardIndex].id)}
-                            className={`flex items-center gap-1 ${
-                              savedWords.includes(filteredVocabulary[currentCardIndex].id) 
-                                ? 'text-english-yellow' 
-                                : 'text-gray-400'
-                            }`}
-                          >
-                            <Bookmark size={16} />
-                            {savedWords.includes(filteredVocabulary[currentCardIndex].id) 
-                              ? 'Saved' 
-                              : 'Save'}
-                          </Button>
-                        </div>
-                        
-                        <FlashCard
-                          word={filteredVocabulary[currentCardIndex].word}
-                          meaning={filteredVocabulary[currentCardIndex].meaning}
-                          example={filteredVocabulary[currentCardIndex].example}
-                          pronunciation={filteredVocabulary[currentCardIndex].pronunciation}
+                <TabsContent value="all" className="pt-4">
+                  {/* Search and Filter */}
+                  <VocabularyControls 
+                    searchTerm={searchTerm}
+                    setSearchTerm={setSearchTerm}
+                    filterCategory={filterCategory}
+                    setFilterCategory={setFilterCategory}
+                    viewMode={viewMode}
+                    setViewMode={setViewMode}
+                    categories={categories}
+                  />
+                  
+                  {filteredVocabulary.length > 0 ? (
+                    <>
+                      {viewMode === 'flashcard' ? (
+                        <VocabularyFlashcardView 
+                          vocabulary={filteredVocabulary}
+                          currentCardIndex={currentCardIndex}
+                          savedWords={savedWords}
+                          onPrevCard={handlePrevCard}
+                          onNextCard={handleNextCard}
+                          onToggleSave={toggleSaveWord}
                         />
-                        
-                        <div className="flex justify-center mt-8 gap-4">
-                          <Button 
-                            variant="outline" 
-                            onClick={handlePrevCard}
-                            className="px-6"
-                          >
-                            <ChevronLeft size={20} className="mr-1" />
-                            Previous
-                          </Button>
-                          <Button 
-                            onClick={handleNextCard}
-                            className="px-6 bg-english-blue hover:bg-english-blue/90"
-                          >
-                            Next
-                            <ChevronRight size={20} className="ml-1" />
-                          </Button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="grid gap-4 mb-12">
-                        {filteredVocabulary.map((item) => (
-                          <div key={item.id} className="border rounded-lg p-4 bg-white hover:shadow-md transition-shadow">
-                            <div className="flex justify-between">
-                              <div>
-                                <h3 className="font-serif text-xl font-bold text-english-dark">
-                                  {item.word}
-                                </h3>
-                                <div className="text-gray-500 text-sm mb-2">/{item.pronunciation}/</div>
-                                <p className="text-gray-700">{item.meaning}</p>
-                                <p className="text-gray-600 mt-2 italic">"{item.example}"</p>
-                              </div>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => toggleSaveWord(item.id)}
-                                className={`h-8 ${
-                                  savedWords.includes(item.id) 
-                                    ? 'text-english-yellow' 
-                                    : 'text-gray-400'
-                                }`}
-                              >
-                                <Bookmark size={18} />
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <div className="text-center py-12">
-                    <h3 className="text-xl font-medium text-gray-700 mb-2">No vocabulary found</h3>
-                    <p className="text-gray-500">Try adjusting your search or filters</p>
-                    <Button 
-                      variant="outline" 
-                      className="mt-4"
-                      onClick={() => {
-                        setSearchTerm('');
-                        setFilterCategory('');
-                      }}
-                    >
-                      Reset Filters
-                    </Button>
-                  </div>
-                )}
-              </TabsContent>
-              
-              <TabsContent value="saved" className="pt-6">
-                {savedVocabulary.length > 0 ? (
-                  <div className="grid gap-4 mb-12">
-                    {savedVocabulary.map((item) => (
-                      <div key={item.id} className="border rounded-lg p-4 bg-white hover:shadow-md transition-shadow">
-                        <div className="flex justify-between">
-                          <div>
-                            <h3 className="font-serif text-xl font-bold text-english-dark">
-                              {item.word}
-                            </h3>
-                            <div className="text-gray-500 text-sm mb-2">/{item.pronunciation}/</div>
-                            <p className="text-gray-700">{item.meaning}</p>
-                            <p className="text-gray-600 mt-2 italic">"{item.example}"</p>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => toggleSaveWord(item.id)}
-                            className="h-8 text-english-yellow"
-                          >
-                            <Bookmark size={18} />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-12">
-                    <h3 className="text-xl font-medium text-gray-700 mb-2">No saved words yet</h3>
-                    <p className="text-gray-500">Start saving words from the vocabulary list</p>
-                    <Button 
-                      variant="outline" 
-                      className="mt-4"
-                      onClick={() => {
-                        const tabElement = document.querySelector('[data-value="all"]') as HTMLElement;
-                        if (tabElement) tabElement.click();
-                      }}
-                    >
-                      Explore Vocabulary
-                    </Button>
-                  </div>
-                )}
-              </TabsContent>
-            </Tabs>
+                      ) : (
+                        <VocabularyListView 
+                          vocabulary={filteredVocabulary}
+                          savedWords={savedWords}
+                          onToggleSave={toggleSaveWord}
+                        />
+                      )}
+                    </>
+                  ) : (
+                    <EmptyState 
+                      title="No vocabulary found"
+                      description="Try adjusting your search or filters"
+                      actionLabel="Reset Filters"
+                      onAction={handleResetFilters}
+                    />
+                  )}
+                </TabsContent>
+                
+                <TabsContent value="saved" className="pt-4">
+                  {/* Search and Filter for saved tab */}
+                  <VocabularyControls 
+                    searchTerm={searchTerm}
+                    setSearchTerm={setSearchTerm}
+                    filterCategory={filterCategory}
+                    setFilterCategory={setFilterCategory}
+                    viewMode={viewMode}
+                    setViewMode={setViewMode}
+                    categories={categories}
+                  />
+                  
+                  {filteredVocabulary.length > 0 ? (
+                    <>
+                      {viewMode === 'flashcard' ? (
+                        <VocabularyFlashcardView 
+                          vocabulary={filteredVocabulary}
+                          currentCardIndex={currentCardIndex}
+                          savedWords={savedWords}
+                          onPrevCard={handlePrevCard}
+                          onNextCard={handleNextCard}
+                          onToggleSave={toggleSaveWord}
+                        />
+                      ) : (
+                        <VocabularyListView 
+                          vocabulary={filteredVocabulary}
+                          savedWords={savedWords}
+                          onToggleSave={toggleSaveWord}
+                        />
+                      )}
+                    </>
+                  ) : (
+                    <EmptyState 
+                      title="No saved words yet"
+                      description="Start saving words from the vocabulary list"
+                      actionLabel="Explore Vocabulary"
+                      onAction={handleSwitchToAllTab}
+                    />
+                  )}
+                </TabsContent>
+              </Tabs>
+            )}
           </div>
         </div>
         
         {/* Study Tips */}
-        <section className="py-16 px-4 bg-english-light">
-          <div className="max-w-7xl mx-auto">
-            <h2 className="text-2xl md:text-3xl font-serif font-bold mb-6 text-center">Vocabulary Learning Tips</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="bg-white p-6 rounded-lg shadow-sm">
-                <h3 className="font-serif text-xl font-bold mb-3">Study in Context</h3>
-                <p className="text-gray-700">Learning words in context helps with retention. Try to use new words in sentences.</p>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow-sm">
-                <h3 className="font-serif text-xl font-bold mb-3">Daily Practice</h3>
-                <p className="text-gray-700">Spend just 10-15 minutes each day reviewing vocabulary for the best results.</p>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow-sm">
-                <h3 className="font-serif text-xl font-bold mb-3">Word Association</h3>
-                <p className="text-gray-700">Create mental connections between new words and images or familiar concepts.</p>
-              </div>
-            </div>
-          </div>
-        </section>
+        <VocabularyTips />
       </main>
       
       <Footer />
