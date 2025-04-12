@@ -51,16 +51,15 @@ const FlashCard: React.FC<FlashCardProps> = ({
   return (
     <div className="w-full max-w-md mx-auto perspective-1000">
       <div 
-        className={`relative h-[440px] sm:h-[480px] transform-style-3d transition-transform duration-500 ${
-          isFlipped ? 'rotate-y-180' : ''
-        }`}
+        className={`relative h-[440px] sm:h-[480px] transition-transform duration-500`}
         style={{ 
           perspective: '1000px',
+          transformStyle: 'preserve-3d'
         }}
       >
         {/* Front of card */}
         <Card
-          className={`absolute inset-0 p-5 sm:p-6 backface-hidden ${
+          className={`absolute inset-0 p-5 sm:p-6 transition-opacity duration-300 ${
             isFlipped ? 'opacity-0 pointer-events-none' : 'opacity-100'
           }`}
           style={{ 
@@ -147,13 +146,14 @@ const FlashCard: React.FC<FlashCardProps> = ({
 
         {/* Back of card */}
         <Card
-          className={`absolute inset-0 p-5 sm:p-6 backface-hidden ${
+          className={`absolute inset-0 p-5 sm:p-6 transition-opacity duration-300 ${
             isFlipped ? 'opacity-100' : 'opacity-0 pointer-events-none'
           }`}
           style={{ 
             backfaceVisibility: 'hidden',
-            transform: isFlipped ? 'rotateY(0deg)' : 'rotateY(-180deg)',
+            transform: isFlipped ? 'rotateY(0deg)' : 'rotateY(180deg)',
             transformStyle: 'preserve-3d',
+            zIndex: isFlipped ? 10 : 0
           }}
         >
           <div className="flex flex-col space-y-3 h-full justify-between">

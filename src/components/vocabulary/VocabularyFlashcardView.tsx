@@ -36,14 +36,21 @@ const VocabularyFlashcardView: React.FC<VocabularyFlashcardViewProps> = ({
     return null;
   }
 
-  const currentWord = vocabulary[currentCardIndex];
+  // Make sure we have a valid index
+  const safeIndex = Math.min(Math.max(0, currentCardIndex), vocabulary.length - 1);
+  const currentWord = vocabulary[safeIndex];
+  
+  if (!currentWord) {
+    return null;
+  }
+  
   const isSaved = savedWords.includes(currentWord.id);
 
   return (
     <div className="mb-12">
       <div className="flex justify-between items-center mb-6">
         <div className="text-sm text-gray-500">
-          Card {currentCardIndex + 1} of {vocabulary.length}
+          Card {safeIndex + 1} of {vocabulary.length}
         </div>
       </div>
       
