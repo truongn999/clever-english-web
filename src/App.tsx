@@ -4,6 +4,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { StreakProvider } from "./contexts/StreakContext";
 import { useEffect } from "react";
 import Index from "./pages/Index";
 import Lessons from "./pages/Lessons";
@@ -16,11 +18,13 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Leaderboard from "./pages/Leaderboard";
 import NotFound from "./pages/NotFound";
-import { AuthProvider, useAuth } from "./contexts/AuthContext";
-import { StreakProvider } from "./contexts/StreakContext";
 import StickyStreak from "./components/streak/StickyStreak";
 import LearningPath from "./pages/LearningPath";
 import Profile from "./pages/Profile";
+import Podcast from "./pages/Podcast";
+import PodcastDetail from "./pages/PodcastDetail";
+import ShortStories from "./pages/ShortStories";
+import StoryDetail from "./pages/StoryDetail";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -85,6 +89,22 @@ const RouteChange = () => {
         title = "Your Learning Dashboard | Learn English";
         description = "Track your English learning progress and achievements.";
         break;
+      case "/podcast":
+        title = "English Podcasts | Learn by Listening";
+        description = "Improve your English listening skills with our curated podcasts for all levels and topics.";
+        break;
+      case pathname.match(/^\/podcast\/\d+$/)?.input:
+        title = "Podcast Episode | Learn English by Listening";
+        description = "Listen to English podcasts with interactive transcripts and vocabulary explanations.";
+        break;
+      case "/stories":
+        title = "English Short Stories | Learn with Reading";
+        description = "Improve your English reading skills and vocabulary with our collection of short stories for all levels.";
+        break;
+      case pathname.match(/^\/stories\/\d+$/)?.input:
+        title = "English Short Story | Learn by Reading";
+        description = "Read interactive English short stories with vocabulary explanations and comprehension exercises.";
+        break;
       default:
         break;
     }
@@ -117,6 +137,10 @@ const AppContent = () => {
         <Route path="/vocabulary" element={<Vocabulary />} />
         <Route path="/quiz" element={<Quiz />} />
         <Route path="/grammar" element={<GrammarLessons />} />
+        <Route path="/podcast" element={<Podcast />} />
+        <Route path="/podcast/:id" element={<PodcastDetail />} />
+        <Route path="/stories" element={<ShortStories />} />
+        <Route path="/stories/:id" element={<StoryDetail />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />

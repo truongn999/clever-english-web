@@ -43,7 +43,9 @@ const Navbar: React.FC = () => {
             <Link to="/" className="text-gray-700 hover:text-english-blue font-medium">Home</Link>
             <Link to="/lessons" className="text-gray-700 hover:text-english-blue font-medium">Lessons</Link>
             <Link to="/vocabulary" className="text-gray-700 hover:text-english-blue font-medium">Vocabulary</Link>
-            <Link to="/quiz" className="text-gray-700 hover:text-english-blue font-medium">Quiz</Link>
+            <Link to="/podcast" className="text-gray-700 hover:text-english-blue font-medium">Podcasts</Link>
+            <Link to="/stories" className="text-gray-700 hover:text-english-blue font-medium">Stories</Link>
+            {/* <Link to="/quiz" className="text-gray-700 hover:text-english-blue font-medium">Quiz</Link> */}
             {
               isLoggedIn && (
                 <Link to="/leaderboard" className="text-gray-700 hover:text-english-blue font-medium">Leaderboard</Link>
@@ -130,6 +132,18 @@ const Navbar: React.FC = () => {
               onClick={toggleMenu}
             >
               Quiz
+            </Link>
+            <Link to="/podcasr" 
+              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-english-blue hover:bg-gray-50"
+              onClick={toggleMenu}
+            >
+              Podcasr
+            </Link>
+            <Link to="/stories" 
+              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-english-blue hover:bg-gray-50"
+              onClick={toggleMenu}
+            >
+              Stories
             </Link>
             <Link to="/leaderboard" 
               className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-english-blue hover:bg-gray-50"
