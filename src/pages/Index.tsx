@@ -207,7 +207,7 @@ const Index: React.FC = () => {
                     <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </Link>
                 </Button>
-                <Button variant="outline" className="text-white border-white hover:bg-white/10 text-lg" size="lg" asChild>
+                <Button variant="outline" className="bg-blue border-white hover:bg-white/10 text-lg" size="lg" asChild>
                   <Link to="/vocabulary">Try a Flash card</Link>
                 </Button>
               </div>
